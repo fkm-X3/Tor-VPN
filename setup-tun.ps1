@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$ProjectRoot = Split-Path -Parent $PSScriptRoot
+$ProjectRoot = $PSScriptRoot
 if (-not $ProjectRoot) { $ProjectRoot = Get-Location }
 
 Set-Location (Join-Path $ProjectRoot "tor-tun")
