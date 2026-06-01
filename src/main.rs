@@ -1,5 +1,6 @@
 mod bypass;
 mod config;
+mod gui;
 mod packet;
 mod tcp;
 mod tor;
@@ -25,7 +26,7 @@ fn init_logging() {
         .init();
 }
 
-fn get_physical_interface_index(tun_name: &str) -> Result<u32> {
+pub(crate) fn get_physical_interface_index(tun_name: &str) -> Result<u32> {
     let output = std::process::Command::new("netsh")
         .args(["interface", "ip", "show", "interface"])
         .output()
@@ -59,6 +60,13 @@ async fn main() -> Result<()> {
     init_logging();
     let config = Config::parse();
 
+    if !config.cli {
+        // GUI mode (default)
+        let _ = gui::run(config)?;
+        return Ok(());
+    }
+
+    // ── CLI mode (legacy) ──
     info!("TorVPN v{} starting...", env!("CARGO_PKG_VERSION"));
     info!("TUN: {}/{}", config.tun_ip, config.tun_prefix_len);
     info!("Tor: {}:{}", config.tor_host, config.tor_port);

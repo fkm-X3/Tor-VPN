@@ -23,6 +23,8 @@ windows-sys = { version = "0.59", features = [
     "Win32_Foundation",
 ]}
 
+eframe = "0.27"
+
 [profile.release]
 opt-level = 2
 lto = true

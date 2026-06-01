@@ -33,4 +33,7 @@ pub struct Config {
 
     #[arg(long)]
     pub skip_tor_download: bool,
+
+    #[arg(long, help = "Run in CLI mode (no GUI)")]
+    pub cli: bool,
 }
