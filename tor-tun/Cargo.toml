@@ -1,0 +1,16 @@
+[package]
+name = "tor-tun"
+version = "0.1.0"
+edition = "2021"
+description = "TUN-to-Tor SOCKS5 proxy using arti and tokio"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tun = { version = "0.8", features = ["async"] }
+arti-client = "0.38"
+tor-rtcompat = "0.38"
+rusqlite = { version = "0.37", features = ["bundled"] }
+anyhow = "1"
+log = "0.4"
+env_logger = "0.11"
+bytes = "1"
