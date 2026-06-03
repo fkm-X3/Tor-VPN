@@ -9,17 +9,46 @@ $WintunDir = "$env:TEMP\wintun"
 Write-Host "=== TorVPN TUN Setup ===" -ForegroundColor Cyan
 Write-Host ""
 
+# Function to handle elevation via Windows Sudo
+function Invoke-SudoElevation {
+    # Check if sudo command exists in Windows
+    $sudoExists = Get-Command sudo -ErrorAction SilentlyContinue
+
+    if (-not $sudoExists) {
+        Write-Host "[-] 'sudo' is not installed or enabled on this system." -ForegroundColor Yellow
+        Write-Host "To enable Windows Sudo (Windows 11 Insider/Modern builds):" -ForegroundColor White
+        Write-Host "  1. Open Settings -> System -> For developers." -ForegroundColor White
+        Write-Host "  2. Toggle 'Enable sudo' to ON." -ForegroundColor White
+        Write-Host "  3. Alternatively, run in an Admin PowerShell: " -ForegroundColor White
+        Write-Host "     fscfg /enable-sudo" -ForegroundColor Magenta
+        Write-Host ""
+        
+        $choice = Read-Host "Would you like to try continuing without admin rights? (y/N)"
+        if ($choice -ne "y") { exit 1 }
+        return
+    }
+
+    Write-Host "[!] 'sudo' detected." -ForegroundColor Cyan
+    $sudoChoice = Read-Host "Would you like to relaunch this script using sudo? (Y/n)"
+    if ($sudoChoice -eq "n") {
+        $choice = Read-Host "Continue anyway without admin rights? (y/N)"
+        if ($choice -ne "y") { exit 1 }
+        return
+    }
+
+    Write-Host "Relaunching with sudo..." -ForegroundColor Green
+    # Start a new powershell process using sudo, passing the current script path
+    sudo powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath
+    exit
+}
+
 # Check if running as admin
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "WARNING: Not running as Administrator." -ForegroundColor Yellow
     Write-Host "The TUN driver installation requires admin rights." -ForegroundColor Yellow
-    Write-Host "Please re-run this script as Administrator." -ForegroundColor Yellow
     Write-Host ""
-    $continue = Read-Host "Continue anyway? (y/N)"
-    if ($continue -ne "y") {
-        exit 1
-    }
+    Invoke-SudoElevation
 }
 
 # Download wintun
